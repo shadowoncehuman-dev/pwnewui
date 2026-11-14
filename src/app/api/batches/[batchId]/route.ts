@@ -28,6 +28,8 @@ type DetailsResponse = {
       displayOrder?: number;
       lectureCount?: number;
       schedules?: number;
+      videos?: number;
+      lectureVideos?: number;
       imageId?: string;
       progressCount?: number;
     }[];
@@ -40,7 +42,7 @@ function normalize(raw: NonNullable<DetailsResponse["data"]>, batchId: string) {
       id: s.subjectId ?? s._id ?? "",
       name: (s.subject ?? "").trim(),
       slug: s.slug ?? "",
-      lectureCount: s.lectureCount ?? s.schedules ?? 0,
+      lectureCount: Math.max(s.lectureCount ?? 0, s.schedules ?? 0, s.videos ?? 0, s.lectureVideos ?? 0),
       displayOrder: s.displayOrder ?? 999,
       image: s.imageId ? resolveAssetUrl(s.imageId) : "",
     }))

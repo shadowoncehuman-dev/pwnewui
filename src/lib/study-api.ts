@@ -161,28 +161,6 @@ export async function deltaPlayFetch(
 
 export const LXPW_BASE = "https://www.learnxpw.site/api";
 
-/** Build the self-contained player URL for a lecture on the LearnX PW mirror. */
-export function lxpwWatchUrl(opts: {
-  batchId: string;
-  subjectSlug: string;
-  contentId: string;
-  urlType: string;
-  youtubeId?: string;
-  videoUrl?: string;
-}): string {
-  const type = opts.urlType === "youtube" ? "youtube" : "penpencilvdo";
-  const rawVideoUrl =
-    opts.videoUrl ||
-    (opts.youtubeId ? `https://www.youtube.com/watch?v=${opts.youtubeId}` : "");
-  const videoUrl = encodeURIComponent(rawVideoUrl);
-  return (
-    `https://www.learnxpw.site/watch?batchId=${encodeURIComponent(opts.batchId)}` +
-    `&SubjectId=${encodeURIComponent(opts.subjectSlug)}` +
-    `&ChildId=${encodeURIComponent(opts.contentId)}` +
-    `&Type=${type}&VideoUrl=${videoUrl}&isLocked=false`
-  );
-}
-
 /** Plain JSON GET against the LearnX PW mirror (no auth required). */
 export async function lxpwGet<T = unknown>(
   path: string,

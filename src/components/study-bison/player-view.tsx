@@ -20,7 +20,6 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { lxpwWatchUrl } from "@/lib/study-api";
 import { firebaseAuth, recordLectureProgress } from "@/lib/firebase";
 import { NativePlayer } from "./native-player";
 
@@ -94,10 +93,19 @@ export function WatchView({
           setLoading(false);
         } else {
           setVideoId(undefined);
-          setResolving(false);
+          setStream(null);
           setLoading(false);
           const apiId = lec.videoApiId ?? lec.videoId ?? "";
-          if (apiId) {
+          if (d.source === "learnxpw-mirror") {
+            setStream({
+              playable: false,
+              kind: "unknown",
+              url: "",
+              reason: "This lecture requires verification with the original provider before it can be played.",
+            });
+            setResolving(false);
+          } else if (apiId) {
+            setResolving(true);
             const q = lec.videoUrl ? `?url=${encodeURIComponent(lec.videoUrl)}` : "";
             fetch(`/api/streams/${encodeURIComponent(apiId)}${q}`)
               .then((r) => r.json())
@@ -107,9 +115,13 @@ export function WatchView({
               .catch(() => {
                 if (alive)
                   setStream({ playable: false, kind: "unknown", url: "", reason: "Could not resolve stream." });
+              })
+              .finally(() => {
+                if (alive) setResolving(false);
               });
-          } else if (alive) {
+          } else {
             setStream({ playable: false, kind: "unknown", url: "", reason: "No stream attached yet." });
+            setResolving(false);
           }
         }
       })
@@ -245,12 +257,8 @@ export function WatchView({
         <div className="relative flex min-h-0 flex-1 w-full items-center justify-center bg-black">
           <div className="relative w-full h-full max-w-[1600px] mx-auto flex items-center justify-center">
             <PlayerBlock
-              batchId={batchId}
-              subjectSlug={subjectSlug}
-              contentId={contentId}
               urlType={urlType}
               videoId={videoId}
-              videoUrl={videoUrl}
               stream={stream}
               title={title}
               notes={notes}
@@ -290,12 +298,8 @@ export function WatchView({
           <div className="grid gap-5 grid-cols-1 xl:grid-cols-[1fr_360px]">
             <div className="space-y-4 min-w-0">
               <PlayerBlock
-                batchId={batchId}
-                subjectSlug={subjectSlug}
-                contentId={contentId}
                 urlType={urlType}
                 videoId={videoId}
-                videoUrl={videoUrl}
                 stream={stream}
                 title={title}
                 notes={notes}
@@ -347,12 +351,8 @@ export function WatchView({
           {/* player column */}
           <div className="space-y-4 min-w-0">
             <PlayerBlock
-              batchId={batchId}
-              subjectSlug={subjectSlug}
-              contentId={contentId}
               urlType={urlType}
               videoId={videoId}
-              videoUrl={videoUrl}
               stream={stream}
               title={title}
               notes={notes}
@@ -395,15 +395,11 @@ export function WatchView({
   );
 }
 
-/* ---------------------- Player (Native / Embed toggle) ---------------------- */
+/* ---------------------- Player (YouTube / In-app) ---------------------- */
 
 function PlayerBlock({
-  batchId,
-  subjectSlug,
-  contentId,
   urlType,
   videoId,
-  videoUrl,
   stream,
   title,
   notes,
@@ -414,12 +410,8 @@ function PlayerBlock({
   bookmarked,
   onBookmark,
 }: {
-  batchId: string;
-  subjectSlug: string;
-  contentId: string;
   urlType: string;
   videoId?: string;
-  videoUrl?: string;
   stream: StreamResolution | null;
   title: string;
   notes?: NoteDoc[];
@@ -432,12 +424,10 @@ function PlayerBlock({
 }) {
   const [mode, setMode] = useState<"embed" | "native">("embed");
   const canNative = urlType !== "youtube" && !!stream?.playable && !!stream.url;
-  // In full-page mode, prefer the in-app native player when available.
-  useEffect(() => {
-    if (fullPage && canNative) setMode("native");
-  }, [fullPage, canNative]);
-
-  const embedSrc = lxpwWatchUrl({ batchId, subjectSlug, contentId, urlType, youtubeId: videoId, videoUrl });
+  const embedSrc = urlType === "youtube" && videoId
+    ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`
+    : null;
+  const useNative = canNative && (mode === "native" || !embedSrc);
 
   if (fullPage) {
     return (
@@ -457,11 +447,11 @@ function PlayerBlock({
             </p>
           )}
           <div className="pointer-events-auto order-3 ml-11 flex w-[calc(100%-2.75rem)] items-center justify-end gap-1 rounded-full bg-black/45 p-1 sm:order-none sm:ml-0 sm:w-auto">
-            <PlayerToggle active={mode === "embed"} onClick={() => setMode("embed")} icon={<Monitor size={12} />}>
-              <span className="hidden sm:inline">PW Player</span>
-              <span className="sm:hidden">PW</span>
+            <PlayerToggle active={!useNative && mode === "embed"} onClick={() => setMode("embed")} icon={<Monitor size={12} />} disabled={!embedSrc}>
+              <span className="hidden sm:inline">YouTube</span>
+              <span className="sm:hidden">YT</span>
             </PlayerToggle>
-            <PlayerToggle active={mode === "native"} onClick={() => setMode("native")} icon={<MonitorPlay size={12} />} disabled={!canNative}>
+            <PlayerToggle active={useNative} onClick={() => setMode("native")} icon={<MonitorPlay size={12} />} disabled={!canNative}>
               <span className="hidden sm:inline">In-app</span>
               <span className="sm:hidden">App</span>
             </PlayerToggle>
@@ -479,7 +469,7 @@ function PlayerBlock({
 
         {/* player fills the viewport */}
         <div className="relative w-full h-full min-w-0 min-h-0 flex items-center justify-center">
-          {mode === "native" && canNative ? (
+          {useNative ? (
             <NativePlayer
               stream={stream!}
               title={title}
@@ -488,7 +478,7 @@ function PlayerBlock({
               onOpenNote={onOpenNote}
               fullPage
             />
-          ) : (
+          ) : embedSrc ? (
             <div className="relative w-full h-full min-w-0 bg-black overflow-hidden">
               <iframe
                 key={embedSrc}
@@ -499,6 +489,8 @@ function PlayerBlock({
                 allowFullScreen
               />
             </div>
+          ) : (
+            <UnavailablePlayer message={stream?.reason ?? "This lecture is not available in the in-app player."} />
           )}
         </div>
       </div>
@@ -510,22 +502,17 @@ function PlayerBlock({
       {/* toggle bar */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="glass-soft rounded-full p-1 flex gap-1">
-          <PlayerToggle active={mode === "embed"} onClick={() => setMode("embed")} icon={<Monitor size={13} />}>
-            PW Player
+          <PlayerToggle active={!useNative && mode === "embed"} onClick={() => setMode("embed")} icon={<Monitor size={13} />} disabled={!embedSrc}>
+            YouTube
           </PlayerToggle>
-          <PlayerToggle active={mode === "native"} onClick={() => setMode("native")} icon={<MonitorPlay size={13} />} disabled={!canNative}>
+          <PlayerToggle active={useNative} onClick={() => setMode("native")} icon={<MonitorPlay size={13} />} disabled={!canNative}>
             In-app
           </PlayerToggle>
         </div>
-        {!canNative && mode === "embed" && (
-          <span className="text-[11px] text-muted-foreground hidden sm:block">
-            In-app player available for playable streams
-          </span>
-        )}
       </div>
 
       {/* player */}
-      {mode === "native" && canNative ? (
+      {useNative ? (
         <NativePlayer
           stream={stream!}
           title={title}
@@ -533,18 +520,30 @@ function PlayerBlock({
           onPosition={onPosition}
           onOpenNote={onOpenNote}
         />
-      ) : (
+      ) : embedSrc ? (
         <div className="sb-pw-embed relative w-full min-w-0 bg-black rounded-2xl overflow-hidden border border-white/10 select-none">
           <iframe
             key={embedSrc}
             src={embedSrc}
-            title={title || "PW video player"}
+            title={title || "YouTube video player"}
             className="absolute inset-0 w-full h-full border-0"
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
             allowFullScreen
           />
         </div>
+      ) : (
+        <div className="sb-pw-embed relative w-full min-w-0 bg-black rounded-2xl overflow-hidden border border-white/10 select-none">
+          <UnavailablePlayer message={stream?.reason ?? "This lecture is not available in the in-app player."} />
+        </div>
       )}
+    </div>
+  );
+}
+
+function UnavailablePlayer({ message }: { message: string }) {
+  return (
+    <div className="flex h-full min-h-48 w-full items-center justify-center p-6 text-center text-sm text-muted-foreground" role="status">
+      {message}
     </div>
   );
 }
