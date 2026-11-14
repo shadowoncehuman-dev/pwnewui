@@ -6,7 +6,7 @@ import { Send } from "lucide-react";
 import { firebaseAuth } from "@/lib/firebase";
 import { GlassButton } from "./glass";
 
-const TELEGRAM_URL = "https://t.me/quanticaofficial";
+const TELEGRAM_URL = "https://t.me/+PFYU0-GcVGswNTBl";
 const joinedKey = (uid: string) => `quantica:telegram-joined:${uid}`;
 
 // Blocks every signed-in learner until they tap "Join".
@@ -39,10 +39,10 @@ function TelegramDialog({ uid }: { uid: string }) {
         </div>
         <h2 id="telegram-title" className="mt-5 text-2xl font-extrabold tracking-tight">Join our Telegram</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Joining the official Quantica channel is required to get batch updates, new lectures and announcements first.
+          Join the ZXkai Telegram channel for batch updates, new lectures and announcements.
         </p>
         <GlassButton variant="gold" size="lg" className="mt-6 w-full" onClick={join}>
-          <Send size={18} /> Join @quanticaofficial
+          <Send size={18} /> Join ZXkai on Telegram
         </GlassButton>
       </section>
     </div>

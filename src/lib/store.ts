@@ -3,7 +3,7 @@
 import { create } from "zustand";
 
 /**
- * Study Bison — client-side view router.
+ * ZXkai — client-side view router.
  * The whole app is a single-page experience; every "page" of the study
  * flow is a view driven by this store, mirrored to the URL hash so that
  * back/forward and deep links work (#/batch/<id>/subject/<slug>...).

@@ -25,19 +25,19 @@ export default function Page() {
 
   // Keep document.title in sync with the current view
   useEffect(() => {
-    const base = "Quantica Digital — Learning Platform"
+    const base = "ZXkai — Learning Platform"
     const s = useApp.getState();
     const titles: Record<string, string> = {
-      home: `Study · Quantica Digital`,
-      batches: `Batches · Quantica Digital`,
-      enrolled: `Enrolled · Quantica Digital`,
-      batch: `${s.batchName ?? "Batch"} · Quantica Digital`,
-      subject: `${s.subjectName ?? "Subject"} · Quantica Digital`,
-      topic: `${s.topicName ?? "Chapter"} · Quantica Digital`,
-      watch: `${s.lectureTitle ?? "Lecture"} · Quantica Digital`,
-      leaderboard: `Leaderboard · Quantica Digital`,
-      profile: `Profile · Quantica Digital`,
-      pdf: `${s.lectureTitle ?? "PDF"} · Quantica Digital`,
+      home: `Study · ZXkai`,
+      batches: `Batches · ZXkai`,
+      enrolled: `Enrolled · ZXkai`,
+      batch: `${s.batchName ?? "Batch"} · ZXkai`,
+      subject: `${s.subjectName ?? "Subject"} · ZXkai`,
+      topic: `${s.topicName ?? "Chapter"} · ZXkai`,
+      watch: `${s.lectureTitle ?? "Lecture"} · ZXkai`,
+      leaderboard: `Leaderboard · ZXkai`,
+      profile: `Profile · ZXkai`,
+      pdf: `${s.lectureTitle ?? "PDF"} · ZXkai`,
     };
     document.title = titles[view] ?? base;
   }, [view]);

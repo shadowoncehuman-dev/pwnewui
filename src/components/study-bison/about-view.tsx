@@ -24,7 +24,7 @@ export function AboutView() {
           <div className="flex flex-col lg:flex-row items-center gap-10">
             <div className="w-44 h-44 sm:w-56 sm:h-56 rounded-[2.5rem] overflow-hidden border border-white/15 bg-black shadow-[0_0_80px_rgba(74,158,255,0.3)] shrink-0">
               { }
-              <img src="/logo.png" alt="Study Bison" className="w-full h-full object-cover" />
+              <img src="/logo.png" alt="ZXkai" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 text-center lg:text-left">
               <GlassBadge tone="gold" className="mb-4">
@@ -34,10 +34,9 @@ export function AboutView() {
                 The herd that studies <span className="text-gold">together, wins together</span>
               </h1>
               <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-2xl">
-                Study Bison brings premium coaching-style learning to everyone — batch catalogs,
+                ZXkai brings premium coaching-style learning to everyone — batch catalogs,
                 structured subjects and chapters, thousands of lectures with a player built for
-                focused revision, plus every class note and DPP one tap away. Strong, steady,
-                unstoppable: that&apos;s the bison way.
+                focused revision, plus every class note and DPP one tap away.
               </p>
               <div className="mt-6 flex flex-wrap justify-center lg:justify-start gap-3">
                 <GlassButton variant="gold" size="lg" onClick={() => navigate({ view: "home", tab: "batches" })}>
@@ -46,7 +45,7 @@ export function AboutView() {
                 <GlassButton
                   variant="glass"
                   size="lg"
-                  onClick={() => window.open("https://t.me/studyvaultpro", "_blank")}
+                  onClick={() => window.open("https://t.me/+PFYU0-GcVGswNTBl", "_blank", "noopener,noreferrer")}
                 >
                   <Send size={16} /> Telegram Community
                 </GlassButton>
@@ -57,7 +56,7 @@ export function AboutView() {
 
         {/* values */}
         <section>
-          <SectionHeading eyebrow="WHAT WE STAND FOR" title="Why learners pick Study Bison" />
+          <SectionHeading eyebrow="WHAT WE STAND FOR" title="Why learners pick ZXkai" />
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
             <ValueCard
               icon={<Target size={20} />}

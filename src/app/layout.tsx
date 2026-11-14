@@ -3,11 +3,11 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Quantica Digital — Learning Platform",
+  title: "ZXkai — Learning Platform",
   description:
-    "Quantica Digital brings courses, lectures, notes, and learning resources together in one focused digital learning platform.",
+    "ZXkai brings courses, lectures, notes, and learning resources together in one focused digital learning platform.",
   keywords: [
-    "Quantica Digital",
+    "ZXkai",
     "study platform",
     "lectures",
     "notes",
@@ -16,24 +16,21 @@ export const metadata: Metadata = {
     "batches",
     "video player",
   ],
-  authors: [{ name: "Quantica Digital" }],
+  authors: [{ name: "ZXkai" }],
   icons: {
-    icon: [
-      { url: "/favicon.png", type: "image/png", sizes: "any" },
-      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
-    ],
-    shortcut: "/favicon.png",
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Quantica Digital — Learning Platform",
+    title: "ZXkai — Learning Platform",
     description: "Premium batches, lectures and notes in one liquid-glass experience.",
-    siteName: "Quantica Digital",
+    siteName: "ZXkai",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Quantica Digital",
+    title: "ZXkai",
     description: "Premium batches, lectures and notes in one liquid-glass experience.",
   },
 };

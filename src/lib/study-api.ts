@@ -1,5 +1,5 @@
 /**
- * Study Bison — upstream data client
+ * ZXkai — upstream data client
  *
  * Talks to the public PenPencil-compatible study APIs used by the platform.
  * Features:

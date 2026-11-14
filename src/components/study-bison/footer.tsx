@@ -15,10 +15,10 @@ export function SiteFooter() {
           <div className="flex items-center gap-3 md:w-1/3">
             <span className="w-12 h-12 rounded-2xl overflow-hidden border border-white/15 bg-black shrink-0 shadow-[0_0_20px_rgba(245,181,46,0.2)]">
               { }
-              <img src="/logo.png" alt="Study Bison logo" className="w-full h-full object-cover" />
+              <img src="/logo.png" alt="ZXkai logo" className="w-full h-full object-cover" />
             </span>
             <div className="leading-tight">
-              <p className="text-base font-extrabold text-gold">STUDY BISON</p>
+              <p className="text-base font-extrabold text-gold">ZXkai</p>
               <p className="text-[11px] font-semibold tracking-[0.24em] text-muted-foreground">
                 NEXT GEN LEARNING
               </p>
@@ -36,7 +36,7 @@ export function SiteFooter() {
           {/* Telegram + copyright */}
           <div className="flex flex-col items-start md:items-end gap-3 md:ml-auto">
             <a
-              href="https://t.me/studyvaultpro"
+              href="https://t.me/+PFYU0-GcVGswNTBl"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-full btn-glass px-5 h-10 text-sm font-semibold text-foreground"
@@ -45,7 +45,7 @@ export function SiteFooter() {
               Join Telegram Community
             </a>
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-              © {year} Study Bison · Crafted with
+              © {year} ZXkai · Crafted with
               <Heart size={12} className="text-[#4a9eff] fill-[#4a9eff]" />
               for learners everywhere
             </p>

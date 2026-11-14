@@ -80,12 +80,12 @@ export function Sidebar() {
         <button
           onClick={() => go("home")}
           className="flex min-w-0 items-center gap-2 cursor-pointer"
-          aria-label="Quantica Digital home"
+          aria-label="ZXkai home"
         >
           <span className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black">
-            <img src="/logo.png" alt="Quantica Digital logo" className="h-full w-full object-cover" />
+            <img src="/logo.png" alt="ZXkai logo" className="h-full w-full object-cover" />
           </span>
-          <span className="truncate text-sm font-extrabold tracking-[0.08em] text-gold">QUANTICA DIGITAL</span>
+          <span className="truncate text-sm font-extrabold tracking-[0.08em] text-gold">ZXkai</span>
         </button>
       </div>
 
@@ -112,13 +112,13 @@ export function Sidebar() {
           <button
             onClick={() => go("home")}
             className="group flex min-w-0 items-center gap-2.5 cursor-pointer"
-            aria-label="Quantica Digital home"
+            aria-label="ZXkai home"
           >
             <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-black shadow-[0_0_24px_rgba(74,158,255,0.25)] transition-shadow group-hover:shadow-[0_0_32px_rgba(74,158,255,0.45)]">
-              <img src="/logo.png" alt="Quantica Digital logo" className="h-full w-full object-cover" />
+              <img src="/logo.png" alt="ZXkai logo" className="h-full w-full object-cover" />
             </span>
             <span className="hidden min-w-0 flex-col text-left leading-none sm:flex">
-              <span className="truncate text-sm font-extrabold tracking-[0.08em] text-gold">QUANTICA DIGITAL</span>
+              <span className="truncate text-sm font-extrabold tracking-[0.08em] text-gold">ZXkai</span>
               <span className="mt-1 text-[9px] font-semibold tracking-[0.2em] text-muted-foreground">DIGITAL LEARNING</span>
             </span>
           </button>

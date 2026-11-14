@@ -29,12 +29,12 @@ export function SiteHeader() {
     <header className="sb-nav-static top-0 px-3 pt-3 sm:px-5">
       <div className="sb-nav-surface relative mx-auto w-full max-w-7xl rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
         <div className="flex min-h-16 items-center gap-3 px-3 sm:px-5">
-          <button onClick={goHome} className="group flex min-w-0 shrink-0 cursor-pointer items-center gap-2.5" aria-label="Quantica Digital home">
+          <button onClick={goHome} className="group flex min-w-0 shrink-0 cursor-pointer items-center gap-2.5" aria-label="ZXkai home">
             <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-black shadow-[0_0_24px_rgba(74,158,255,0.25)] transition-shadow group-hover:shadow-[0_0_32px_rgba(74,158,255,0.45)] sm:h-11 sm:w-11">
-              <img src="/logo.png" alt="Quantica Digital logo" className="h-full w-full object-cover" />
+              <img src="/logo.png" alt="ZXkai logo" className="h-full w-full object-cover" />
             </span>
             <span className="hidden min-w-0 flex-col text-left leading-none sm:flex">
-              <span className="truncate text-sm font-extrabold tracking-[0.08em] text-gold sm:text-base">QUANTICA DIGITAL</span>
+              <span className="truncate text-sm font-extrabold tracking-[0.08em] text-gold sm:text-base">ZXkai</span>
               <span className="mt-1 text-[9px] font-semibold tracking-[0.2em] text-muted-foreground">DIGITAL LEARNING</span>
             </span>
           </button>

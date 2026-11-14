@@ -17,14 +17,12 @@ export function EnrolledView() {
   const { navigate } = useApp();
   const [batches, setBatches] = useState<EnrolledBatch[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [needsAuth, setNeedsAuth] = useState(false);
 
   const load = async () => {
     setLoading(true);
     const user = firebaseAuth.currentUser;
     if (!user) {
       setBatches([]);
-      setNeedsAuth(true);
       setLoading(false);
       return;
     }
@@ -49,7 +47,6 @@ export function EnrolledView() {
         };
       });
       setBatches(enriched);
-      setNeedsAuth(false);
     } catch {
       setBatches([]);
     } finally {
@@ -84,12 +81,6 @@ export function EnrolledView() {
               </div>
             ))}
           </div>
-        ) : needsAuth ? (
-          <EmptyState
-            icon={<GraduationCap size={22} />}
-            title="Sign in to see your enrolled batches"
-            hint="Your enrollments are tied to your account."
-          />
         ) : !batches || batches.length === 0 ? (
           <EmptyState
             icon={<GraduationCap size={22} />}
