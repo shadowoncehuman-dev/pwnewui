@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { Database, Download, LoaderCircle, LockKeyhole, RefreshCw, ShieldCheck } from "lucide-react";
-import { firebaseAuth, signInWithGoogle } from "@/lib/firebase";
+import { Database, Download, LoaderCircle, LockKeyhole, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
 
 type FirebaseExport = {
   authUsers: unknown[];
@@ -35,25 +33,25 @@ function JsonSection({ label, value }: { label: string; value: unknown }) {
 }
 
 export default function AdminPage() {
-  const [user, setUser] = useState<User | null>(firebaseAuth.currentUser);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [password, setPassword] = useState("");
   const [data, setData] = useState<AdminExport | null>(null);
   const [loading, setLoading] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
   const [error, setError] = useState("");
   const requestId = useRef(0);
 
-  const loadData = useCallback(async (currentUser: User) => {
+  const loadData = useCallback(async () => {
     const currentRequestId = ++requestId.current;
     setLoading(true);
     setError("");
     try {
-      const token = await currentUser.getIdToken();
       const response = await fetch("/api/admin/data", {
-        headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
       });
       const result = await response.json() as AdminExport & { error?: string };
-      if (response.status === 403) throw new Error("This Google account is not authorized to access the admin panel.");
+      if (response.status === 403) throw new Error("Your admin session has expired. Sign in again.");
       if (!response.ok) throw new Error(result.error ?? "Unable to load stored data.");
       if (requestId.current === currentRequestId) setData(result);
     } catch (reason) {
@@ -66,26 +64,63 @@ export default function AdminPage() {
     }
   }, []);
 
-  useEffect(() => onAuthStateChanged(firebaseAuth, (nextUser) => {
-    setUser(nextUser);
-    if (nextUser) void loadData(nextUser);
-    else {
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/admin/auth", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to check admin session.");
+        return response.json() as Promise<{ authenticated: boolean }>;
+      })
+      .then(({ authenticated: hasSession }) => {
+        if (!active) return;
+        setAuthenticated(hasSession);
+        if (hasSession) void loadData();
+      })
+      .catch((reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason.message : "Unable to check admin session.");
+      })
+      .finally(() => {
+        if (active) setCheckingSession(false);
+      });
+    return () => {
+      active = false;
       requestId.current += 1;
-      setData(null);
-      setError("");
-      setLoading(false);
-    }
-  }), [loadData]);
+    };
+  }, [loadData]);
 
-  async function handleSignIn() {
+  async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setSigningIn(true);
     setError("");
     try {
-      await signInWithGoogle();
+      const response = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error ?? "Unable to sign in.");
+      setAuthenticated(true);
+      setPassword("");
+      await loadData();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to sign in.");
     } finally {
       setSigningIn(false);
+    }
+  }
+
+  async function handleSignOut() {
+    setError("");
+    try {
+      const response = await fetch("/api/admin/auth", { method: "DELETE" });
+      if (!response.ok) throw new Error("Unable to sign out.");
+      requestId.current += 1;
+      setAuthenticated(false);
+      setData(null);
+      setLoading(false);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to sign out.");
     }
   }
 
@@ -116,28 +151,47 @@ export default function AdminPage() {
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7cc0ff]">ZXkai administration</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Database admin panel</h1>
           </div>
-          {user && (
+          {authenticated && (
             <div className="flex flex-wrap gap-3">
-              <button type="button" onClick={() => void loadData(user)} disabled={loading} className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold transition-colors hover:bg-white/10 disabled:opacity-50">
+              <button type="button" onClick={() => void loadData()} disabled={loading} className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold transition-colors hover:bg-white/10 disabled:opacity-50">
                 {loading ? <LoaderCircle size={16} className="animate-spin" /> : <RefreshCw size={16} />}
                 Refresh
               </button>
               <button type="button" onClick={exportData} disabled={!data} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#e7bd6d] px-4 text-sm font-bold text-[#16130c] transition-colors hover:bg-[#f0cc83] disabled:opacity-50">
                 <Download size={16} /> Export all JSON
               </button>
+              <button type="button" onClick={() => void handleSignOut()} className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-semibold transition-colors hover:bg-white/10">
+                <LogOut size={16} /> Sign out
+              </button>
             </div>
           )}
         </header>
 
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-7">
-          {!user ? (
+          {checkingSession ? (
+            <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+              <LoaderCircle size={16} className="animate-spin" /> Checking admin session…
+            </div>
+          ) : !authenticated ? (
             <div className="mx-auto flex max-w-md flex-col items-center py-12 text-center">
               <LockKeyhole size={32} className="text-[#e7bd6d]" />
               <h2 className="mt-4 text-xl font-bold">Admin sign-in required</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in with the authorized admin Google account to view database records.</p>
-              <button type="button" onClick={() => void handleSignIn()} disabled={signingIn} className="mt-6 rounded-xl bg-[#e7bd6d] px-5 py-3 text-sm font-bold text-[#16130c] transition-colors hover:bg-[#f0cc83] disabled:opacity-50">
-                {signingIn ? "Signing in…" : "Sign in with Google"}
-              </button>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Enter the admin password to view database records.</p>
+              <form onSubmit={handleSignIn} className="mt-6 flex w-full flex-col gap-3">
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  aria-label="Admin password"
+                  placeholder="Admin password"
+                  className="h-12 rounded-xl border border-white/10 bg-black/20 px-4 text-sm outline-none transition-colors focus:border-[#e7bd6d]"
+                />
+                <button type="submit" disabled={signingIn} className="rounded-xl bg-[#e7bd6d] px-5 py-3 text-sm font-bold text-[#16130c] transition-colors hover:bg-[#f0cc83] disabled:opacity-50">
+                  {signingIn ? "Signing in…" : "Sign in"}
+                </button>
+              </form>
               {error && <p role="alert" className="mt-4 text-sm text-red-200">{error}</p>}
             </div>
           ) : (

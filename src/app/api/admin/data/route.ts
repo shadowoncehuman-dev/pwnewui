@@ -1,4 +1,4 @@
-import { isAdmin, verifyFirebaseRequest } from "@/lib/server/firebase-token";
+import { isAdminSession } from "@/lib/server/admin-session";
 import { exportFirebaseData } from "@/lib/server/firebase-admin-data";
 
 export const runtime = "nodejs";
@@ -55,7 +55,7 @@ async function exportSupabaseData() {
 }
 
 export async function GET(request: Request) {
-  if (!isAdmin(await verifyFirebaseRequest(request))) {
+  if (!await isAdminSession(request)) {
     return Response.json({ error: "Only the admin can view stored data." }, { status: 403, headers: responseHeaders });
   }
 
