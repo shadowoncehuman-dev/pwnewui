@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiGet, TTL, resolveAssetUrl, lxpwGet } from "@/lib/study-api";
+import { extractYoutubeId } from "@/lib/youtube";
 
 export const dynamic = "force-dynamic";
 
@@ -90,7 +91,7 @@ function normalize(raw: NonNullable<ScheduleData>, contentId: string) {
   const urlType = (raw.urlType ?? "youtube").toLowerCase();
 
   // videoId: prefer parsing `url`; fall back to the thumbnail (i.ytimg.com/vi/<id>/...)
-  let videoId = extractYoutubeId(raw.url ?? "");
+  let videoId = extractYoutubeId(raw.url ?? "") ?? extractYoutubeId(vd.videoUrl ?? "");
   if (!videoId && vd.image) {
     const m = String(vd.image).match(/\/vi\/([^/]+)\//);
     if (m) videoId = m[1];
@@ -156,14 +157,4 @@ export async function GET(
     { success: false, error: res.error ?? "Lecture not found" },
     { status: 502 }
   );
-}
-
-function extractYoutubeId(url: string): string | undefined {
-  if (!url) return undefined;
-  const m = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/live\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{6,20})/
-  );
-  if (m) return m[1];
-  if (/^[A-Za-z0-9_-]{6,20}$/.test(url)) return url;
-  return undefined;
 }

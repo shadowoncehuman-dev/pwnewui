@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiGet, TTL, lxpwGet } from "@/lib/study-api";
+import { extractYoutubeId } from "@/lib/youtube";
 
 export const dynamic = "force-dynamic";
 
@@ -85,8 +86,7 @@ function mapRow(c: RawContent, contentType: string): ContentRow {
   if (contentType === "videos") {
     if (videoType === "youtube") {
       const raw = (c.url ?? "").trim();
-      // Upstream sometimes stores the YT id directly in `url`
-      videoId = raw && raw.length <= 16 && !raw.includes("/") ? raw : extractYoutubeId(raw);
+      videoId = extractYoutubeId(raw);
       if (!videoId && vd?.image) {
         const m = vd.image.match(/\/vi\/([^/]+)\//);
         if (m) videoId = m[1];
@@ -199,16 +199,4 @@ export async function GET(
   }
 
   return NextResponse.json({ success: true, items, totalCount });
-}
-
-function extractYoutubeId(url: string): string | undefined {
-  if (!url) return undefined;
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/live\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{6,20})/,
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
-  }
-  return undefined;
 }

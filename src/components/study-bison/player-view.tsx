@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { firebaseAuth, recordLectureProgress } from "@/lib/firebase";
+import { extractYoutubeId } from "@/lib/youtube";
 import { NativePlayer } from "./native-player";
 
 export interface StreamResolution {
@@ -56,7 +57,9 @@ export function WatchView({
   const { navigate, back } = useApp();
   const appState = useApp();
 
-  const [videoId, setVideoId] = useState<string | undefined>(appState.videoId || undefined);
+  const [videoId, setVideoId] = useState<string | undefined>(
+    extractYoutubeId(appState.videoId ?? "")
+  );
   const [videoUrl, setVideoUrl] = useState<string | undefined>(appState.videoId || undefined);
   const [urlType, setUrlType] = useState<string>("youtube");
   const [stream, setStream] = useState<StreamResolution | null>(null);
@@ -87,9 +90,12 @@ export function WatchView({
         const type = (lec.urlType ?? "youtube").toLowerCase();
         setUrlType(type);
         setVideoUrl(lec.videoUrl ?? lec.videoId ?? undefined);
-        setVideoId(type === "youtube" ? (lec.videoId ?? lec.videoUrl) : undefined);
+        setVideoId(
+          type === "youtube"
+            ? extractYoutubeId(lec.videoId ?? lec.videoUrl ?? "")
+            : undefined
+        );
         if (type === "youtube") {
-          if (lec.videoId || lec.videoUrl) setVideoId(lec.videoId ?? lec.videoUrl);
           setLoading(false);
         } else {
           setVideoId(undefined);
@@ -424,8 +430,9 @@ function PlayerBlock({
 }) {
   const [mode, setMode] = useState<"embed" | "native">("embed");
   const canNative = urlType !== "youtube" && !!stream?.playable && !!stream.url;
-  const embedSrc = urlType === "youtube" && videoId
-    ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`
+  const youtubeId = extractYoutubeId(videoId ?? "");
+  const embedSrc = urlType === "youtube" && youtubeId
+    ? `https://www.youtube.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&playsinline=1&rel=0`
     : null;
   const useNative = canNative && (mode === "native" || !embedSrc);
 
@@ -486,6 +493,7 @@ function PlayerBlock({
                 title={title || "Video player"}
                 className="absolute inset-0 w-full h-full border-0"
                 allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               />
             </div>
@@ -528,6 +536,7 @@ function PlayerBlock({
             title={title || "YouTube video player"}
             className="absolute inset-0 w-full h-full border-0"
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
         </div>
